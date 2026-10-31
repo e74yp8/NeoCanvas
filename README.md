@@ -54,14 +54,14 @@ flutter build apk --debug
 Windows (PowerShell):
 
 ```powershell
-# Build Windows (Debug); runs pub get if needed
+# Build the Windows executable; runs pub get if needed
 .\scripts\build_windows.ps1 -Configuration Debug -PubGet
 
-# Build and launch the Windows executable
-.\scripts\run_windows.ps1 -Configuration Debug
+# Run in debug mode (hot reload + DevTools)
+.\scripts\debug_windows.ps1
 
-# Build, then launch
-.\scripts\run_windows.ps1 -Configuration Debug -Build
+# Profile mode
+.\scripts\debug_windows.ps1 -Mode Profile
 ```
 
 Android:
@@ -79,6 +79,19 @@ Outputs:
 Windows: build\windows\x64\runner\Debug\neocanvas.exe
 Android: build\app\outputs\flutter-apk\app-debug.apk
 ```
+
+### Debugging
+
+Run the app in debug mode:
+
+```powershell
+.\scripts\debug_windows.ps1
+```
+
+Press `v` in the terminal to open Flutter DevTools.
+Use `r` for hot reload and `R` for hot restart.
+
+In VS Code, press `F5` and use the DevTools icon in the Debug toolbar.
 
 ## Project structure
 
