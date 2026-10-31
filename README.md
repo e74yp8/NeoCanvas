@@ -49,6 +49,37 @@ flutter build windows --debug
 flutter build apk --debug
 ```
 
+### Build scripts
+
+Windows (PowerShell):
+
+```powershell
+# Build Windows (Debug); runs pub get if needed
+.\scripts\build_windows.ps1 -Configuration Debug -PubGet
+
+# Build and launch the Windows executable
+.\scripts\run_windows.ps1 -Configuration Debug
+
+# Build, then launch
+.\scripts\run_windows.ps1 -Configuration Debug -Build
+```
+
+Android:
+
+```powershell
+.\scripts\build_android.ps1 -PubGet
+```
+
+The scripts resolve Flutter from `PATH` or `FLUTTER_ROOT`. The first Android
+build may download Gradle dependencies again.
+
+Outputs:
+
+```text
+Windows: build\windows\x64\runner\Debug\neocanvas.exe
+Android: build\app\outputs\flutter-apk\app-debug.apk
+```
+
 ## Project structure
 
 ```text
