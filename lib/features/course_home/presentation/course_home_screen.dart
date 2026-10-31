@@ -7,33 +7,12 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/content/content_route.dart';
 import '../../../core/providers.dart';
 import '../../../core/utils/url_utils.dart';
-import '../../../shared/widgets/app_scaffold.dart';
 import '../../../shared/widgets/async_value_view.dart';
 import '../../../shared/widgets/empty_view.dart';
 import '../../../shared/widgets/skeleton.dart';
 import '../../courses/domain/course.dart';
 import '../../files/presentation/files_pane.dart';
 import 'course_home_providers.dart';
-
-class CourseHomeScreen extends ConsumerWidget {
-  const CourseHomeScreen({required this.courseId, super.key});
-
-  final int courseId;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final course = ref.watch(courseDetailProvider(courseId)).value;
-    final title = course == null
-        ? '課程'
-        : (course.courseCode.isEmpty ? course.name : course.courseCode);
-
-    return AppScaffold(
-      currentIndex: 0,
-      appBar: AppBar(title: Text(title)),
-      body: CourseHomePane(courseId: courseId),
-    );
-  }
-}
 
 class CourseHomePane extends ConsumerStatefulWidget {
   const CourseHomePane({required this.courseId, super.key});

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -6,7 +6,7 @@ import '../../features/auth/presentation/auth_controller.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/auth/presentation/splash_screen.dart';
 import '../../features/course_home/presentation/course_home_screen.dart';
-import '../../features/courses/presentation/courses_screen.dart';
+import '../../features/courses/presentation/courses_shell.dart';
 import '../../features/files/domain/course_file.dart';
 import '../../features/files/presentation/files_screen.dart';
 import '../../features/pdf_viewer/presentation/pdf_viewer_screen.dart';
@@ -35,12 +35,19 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
-      GoRoute(path: '/courses', builder: (_, _) => const CoursesScreen()),
-      GoRoute(
-        path: '/courses/:courseId',
-        builder: (_, state) => CourseHomeScreen(
-          courseId: int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0,
-        ),
+      ShellRoute(
+        builder: (context, state, child) =>
+            CoursesShell(state: state, child: child),
+        routes: [
+          GoRoute(path: '/courses', builder: (_, _) => const SizedBox.shrink()),
+          GoRoute(
+            path: '/courses/:courseId',
+            builder: (_, state) => CourseHomePane(
+              courseId:
+                  int.tryParse(state.pathParameters['courseId'] ?? '') ?? 0,
+            ),
+          ),
+        ],
       ),
       GoRoute(
         path: '/courses/:courseId/files',

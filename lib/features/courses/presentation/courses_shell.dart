@@ -11,53 +11,73 @@ import '../domain/course.dart';
 import 'course_row.dart';
 import 'courses_providers.dart';
 
-class CoursesScreen extends ConsumerWidget {
-  const CoursesScreen({super.key});
+const double kCoursesWideBreakpoint = 1200;
 
-  static const double _wideBreakpoint = 1200;
+class CoursesShell extends ConsumerWidget {
+  const CoursesShell({required this.state, required this.child, super.key});
+
+  final GoRouterState state;
+  final Widget child;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isWide = MediaQuery.sizeOf(context).width >= _wideBreakpoint;
-    final selectedCourseId = ref.watch(selectedCourseIdProvider);
+    final isWide = MediaQuery.sizeOf(context).width >= kCoursesWideBreakpoint;
+    final routeCourseId = int.tryParse(state.pathParameters['courseId'] ?? '');
+    final isDetail = routeCourseId != null;
+    final lastSelectedCourseId = ref.watch(selectedCourseIdProvider);
+    final selectedCourseId = routeCourseId ?? lastSelectedCourseId;
+    final showList = isWide || !isDetail;
 
-    final listPane = _CourseListPane(
-      selectedCourseId: isWide ? selectedCourseId : null,
-      onSelect: (courseId) {
-        if (isWide) {
-          ref.read(selectedCourseIdProvider.notifier).select(courseId);
-        } else {
-          context.push('/courses/$courseId');
-        }
-      },
-    );
+    final listPane = showList
+        ? _CourseListPane(
+            selectedCourseId: isWide ? selectedCourseId : null,
+            onSelect: (courseId) {
+              ref.read(selectedCourseIdProvider.notifier).select(courseId);
+              if (isWide) {
+                context.go('/courses/$courseId');
+              } else {
+                context.push('/courses/$courseId');
+              }
+            },
+          )
+        : null;
 
-    if (!isWide) {
-      return AppScaffold(
-        currentIndex: 0,
-        appBar: AppBar(title: const Text('課程')),
-        body: listPane,
-      );
-    }
+    final detailPane = isDetail
+        ? child
+        : (selectedCourseId == null
+              ? const EmptyView(
+                  title: '選擇一門課程',
+                  message: '從左側選擇課程開始。',
+                  icon: Icons.school_outlined,
+                )
+              : CourseHomePane(courseId: selectedCourseId));
 
     return AppScaffold(
       currentIndex: 0,
-      appBar: AppBar(title: const Text('課程')),
-      body: Row(
-        children: [
-          SizedBox(width: 340, child: listPane),
-          const VerticalDivider(width: 1),
-          Expanded(
-            child: selectedCourseId == null
-                ? const EmptyView(
-                    title: '選擇一門課程',
-                    message: '從左側選擇課程開始。',
-                    icon: Icons.school_outlined,
-                  )
-                : CourseHomePane(courseId: selectedCourseId),
-          ),
-        ],
+      appBar: AppBar(
+        title: const Text('課程'),
+        automaticallyImplyLeading: false,
+        leading: (!isWide && isDetail)
+            ? BackButton(
+                onPressed: () {
+                  if (context.canPop()) {
+                    context.pop();
+                  } else {
+                    context.go('/courses');
+                  }
+                },
+              )
+            : null,
       ),
+      body: isWide
+          ? Row(
+              children: [
+                SizedBox(width: 340, child: listPane!),
+                const VerticalDivider(width: 1),
+                Expanded(child: detailPane),
+              ],
+            )
+          : (isDetail ? child : listPane!),
     );
   }
 }
