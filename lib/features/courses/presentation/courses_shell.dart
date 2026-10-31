@@ -119,7 +119,6 @@ class _CoursesShellState extends ConsumerState<CoursesShell> {
                       ? SizedBox(
                           width: _kCollapsedRailWidth,
                           child: _CollapsedCourseRail(
-                            selectedCourseId: selectedCourseId,
                             onSelect: (courseId) =>
                                 _selectCourse(courseId, isWide: isWide),
                             onExpand: _toggleList,
@@ -265,13 +264,8 @@ class _CourseListPane extends ConsumerWidget {
 }
 
 class _CollapsedCourseRail extends ConsumerWidget {
-  const _CollapsedCourseRail({
-    required this.selectedCourseId,
-    required this.onSelect,
-    required this.onExpand,
-  });
+  const _CollapsedCourseRail({required this.onSelect, required this.onExpand});
 
-  final int? selectedCourseId;
   final ValueChanged<int> onSelect;
   final VoidCallback onExpand;
 
@@ -311,7 +305,6 @@ class _CollapsedCourseRail extends ConsumerWidget {
                   final course = flattened[index];
                   return _CollapsedCourseTile(
                     course: course,
-                    selected: course.id == selectedCourseId,
                     onTap: () => onSelect(course.id),
                   );
                 },
@@ -339,14 +332,9 @@ class _CollapsedCourseRail extends ConsumerWidget {
 }
 
 class _CollapsedCourseTile extends StatefulWidget {
-  const _CollapsedCourseTile({
-    required this.course,
-    required this.selected,
-    required this.onTap,
-  });
+  const _CollapsedCourseTile({required this.course, required this.onTap});
 
   final Course course;
-  final bool selected;
   final VoidCallback onTap;
 
   @override
@@ -421,73 +409,63 @@ class _CollapsedCourseTileState extends State<_CollapsedCourseTile> {
     final theme = Theme.of(context);
     final accent = courseAccent(widget.course.id);
 
-    return MouseRegion(
-      onEnter: (_) => _showLabel(),
-      onExit: (_) => _hideLabel(),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onLongPressStart: (_) => _showLabel(),
-        onLongPressEnd: (_) => _hideLabel(),
-        child: Semantics(
-          label: widget.course.name,
-          button: true,
-          child: Material(
-            color: widget.selected
-                ? theme.colorScheme.primaryContainer.withValues(alpha: 0.45)
-                : Colors.transparent,
-            child: InkWell(
+    return SizedBox(
+      height: 56,
+      child: Center(
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: MouseRegion(
+            cursor: SystemMouseCursors.click,
+            onEnter: (_) => _showLabel(),
+            onExit: (_) => _hideLabel(),
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
               onTap: widget.onTap,
-              child: SizedBox(
-                height: 56,
-                child: Row(
-                  children: [
-                    if (widget.selected)
-                      Container(
-                        width: 3,
-                        height: 40,
-                        color: theme.colorScheme.primary,
-                      )
-                    else
-                      const SizedBox(width: 3),
-                    Expanded(
-                      child: Center(
-                        child: CompositedTransformTarget(
-                          link: _labelLink,
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: accent.withValues(alpha: 0.18),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                alignment: Alignment.center,
-                                child: Text(
-                                  widget.course.initials,
-                                  style: theme.textTheme.labelLarge?.copyWith(
-                                    color: accent,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
+              onLongPressStart: (_) => _showLabel(),
+              onLongPressEnd: (_) => _hideLabel(),
+              child: Semantics(
+                label: widget.course.name,
+                button: true,
+                child: Center(
+                  child: CompositedTransformTarget(
+                    link: _labelLink,
+                    child: SizedBox(
+                      width: 40,
+                      height: 40,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: accent.withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              widget.course.initials,
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: accent,
+                                fontWeight: FontWeight.w700,
                               ),
-                              if (widget.course.isFavorite)
-                                Positioned(
-                                  top: -4,
-                                  right: -4,
-                                  child: Icon(
-                                    Icons.star,
-                                    size: 12,
-                                    color: theme.colorScheme.primary,
-                                  ),
-                                ),
-                            ],
+                            ),
                           ),
-                        ),
+                          if (widget.course.isFavorite)
+                            Positioned(
+                              top: -4,
+                              right: -4,
+                              child: Icon(
+                                Icons.star,
+                                size: 12,
+                                color: theme.colorScheme.primary,
+                              ),
+                            ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
